@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingman VUT Simulator — Boeing Supply Chain</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text-2: #6b6a65;
+    --text-3: #9e9d97;
+    --blue: #185fa5;
+    --blue-light: #b5d4f4;
+    --green: #0f6e56;
+    --amber: #ba7517;
+    --coral: #993c1d;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614;
+      --surface: #1e1e1b;
+      --surface2: #252521;
+      --border: rgba(255,255,255,0.09);
+      --border-strong: rgba(255,255,255,0.16);
+      --text: #eeede8;
+      --text-2: #9e9d97;
+      --text-3: #6b6a65;
+      --blue: #378add;
+      --blue-light: #0c447c;
+      --green: #1d9e75;
+      --amber: #ef9f27;
+      --coral: #d85a30;
+    }
+  }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    line-height: 1.6;
+  }
+
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 2rem;
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 1.25rem;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: normal;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-2);
+    font-style: italic;
+  }
+
+  .equation {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--blue);
+    margin-top: 10px;
+  }
+
+  .app {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  /* Controls */
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: sticky;
+    top: 1.5rem;
+  }
+
+  .ctrl-heading {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 1.25rem;
+    font-family: 'Courier New', monospace;
+  }
+
+  .ctrl-group { margin-bottom: 1.1rem; }
+
+  .ctrl-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 5px;
+    font-family: 'Georgia', serif;
+  }
+
+  .ctrl-val {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: bold;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--blue);
+  }
+
+  input[type=range]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--blue);
+    cursor: pointer;
+    border: 2px solid var(--surface);
+  }
+
+  .mix-pills {
+    display: flex;
+    gap: 6px;
+    margin-top: 7px;
+  }
+
+  .pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .pill-boeing { background: #dceefb; color: #0c447c; }
+  .pill-other  { background: #e8e7e0; color: #444441; }
+
+  @media (prefers-color-scheme: dark) {
+    .pill-boeing { background: #0c447c; color: #b5d4f4; }
+    .pill-other  { background: #2c2c2a; color: #b4b2a9; }
+  }
+
+  /* Right panel */
+  .right { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* Metrics */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    margin-bottom: 6px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .metric-val {
+    font-size: 26px;
+    font-weight: normal;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-2);
+    font-family: 'Georgia', serif;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Chart boxes */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .chart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.1rem 0.9rem;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .chart-desc {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 190px;
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: 'Courier New', monospace;
+  }
+
+  .chart-legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .leg-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Insight */
+  .insight {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-2);
+    font-style: italic;
+  }
+
+  .full-chart { grid-column: 1 / -1; }
+  .full-chart .chart-wrap { height: 280px; }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    .controls { position: static; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Kingman's VUT Equation — Boeing Supplier Queue Simulator</h1>
+  <p>Discrete-event simulation of supplier congestion for Boeing vs. non-Boeing parts</p>
+  <div class="equation">Wait = ((CVₐ² + CVₛ²) / 2) × ProcessingTime × u / (1 − u)</div>
+</div>
+
+<div class="app">
+  <div class="controls">
+    <div class="ctrl-heading">Parameters</div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Arrival variability (CVₐ) <span class="ctrl-val" id="cva-out">1.0</span></div>
+      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cva" oninput="update()">
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Service variability (CVₛ) <span class="ctrl-val" id="cvs-out">1.0</span></div>
+      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cvs" oninput="update()">
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Avg processing time (hrs) <span class="ctrl-val" id="pt-out">4.0</span></div>
+      <input type="range" min="1" max="20" step="0.5" value="4" id="pt" oninput="update()">
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Utilization (u) <span class="ctrl-val" id="u-out">75%</span></div>
+      <input type="range" min="5" max="99" step="1" value="75" id="util" oninput="update()">
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Boeing job mix <span class="ctrl-val" id="mix-out">50%</span></div>
+      <input type="range" min="5" max="95" step="5" value="50" id="mix" oninput="update()">
+      <div class="mix-pills">
+        <span class="pill pill-boeing" id="boeing-lbl">50% Boeing</span>
+        <span class="pill pill-other" id="other-lbl">50% other</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="metrics" id="metrics-row"></div>
+
+    <div class="tab-bar">
+      <button class="tab active" onclick="setView('dashboard', this)">Dashboard</button>
+      <button class="tab" onclick="setView('sensitivity', this)">Sensitivity</button>
+      <button class="tab" onclick="setView('histogram', this)">Distribution</button>
+    </div>
+
+    <div id="view-dashboard">
+      <div class="charts-grid">
+        <div class="chart-box">
+          <div class="chart-title">Wait time vs. utilization</div>
+          <div class="chart-desc">Nonlinear explosion near capacity</div>
+          <div class="chart-wrap"><canvas id="c-util"></canvas></div>
+          <div class="chart-legend">
+            <span><span class="leg-dot" style="background:#185fa5"></span>VUT formula</span>
+            <span><span class="leg-dot" style="background:#0f6e56"></span>Simulated</span>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Wait time vs. variability</div>
+          <div class="chart-desc">Impact of CVₐ and CVₛ at current u</div>
+          <div class="chart-wrap"><canvas id="c-var"></canvas></div>
+          <div class="chart-legend">
+            <span><span class="leg-dot" style="background:#185fa5"></span>CVₐ sweep</span>
+            <span><span class="leg-dot" style="background:#993c1d"></span>CVₛ sweep</span>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">VUT vs. simulated comparison</div>
+          <div class="chart-desc">Approximation accuracy across utilization</div>
+          <div class="chart-wrap"><canvas id="c-comp"></canvas></div>
+          <div class="chart-legend">
+            <span><span class="leg-dot" style="background:#185fa5"></span>VUT</span>
+            <span><span class="leg-dot" style="background:#0f6e56"></span>Simulation</span>
+            <span><span class="leg-dot" style="background:#ba7517"></span>Boeing only</span>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Queue length over time</div>
+          <div class="chart-desc">Simulated backlog (sample run of 800 jobs)</div>
+          <div class="chart-wrap"><canvas id="c-queue"></canvas></div>
+          <div class="chart-legend">
+            <span><span class="leg-dot" style="background:#185fa5"></span>All jobs</span>
+            <span><span class="leg-dot" style="background:#ba7517"></span>Boeing jobs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-sensitivity" style="display:none">
+      <div class="chart-box">
+        <div class="chart-title">Sensitivity: wait time by utilization &amp; CVₐ level</div>
+        <div class="chart-desc">Each line = a different arrival variability at current CVₛ and processing time</div>
+        <div class="chart-wrap" style="height:300px"><canvas id="c-sens"></canvas></div>
+      </div>
+    </div>
+
+    <div id="view-histogram" style="display:none">
+      <div class="chart-box">
+        <div class="chart-title">Wait time distribution</div>
+        <div class="chart-desc">Histogram of 800 simulated jobs — Boeing vs. all</div>
+        <div class="chart-wrap" style="height:300px"><canvas id="c-hist"></canvas></div>
+        <div class="chart-legend">
+          <span><span class="leg-dot" style="background:#185fa5"></span>All jobs</span>
+          <span><span class="leg-dot" style="background:#ba7517"></span>Boeing jobs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight" id="insight-box"></div>
+  </div>
+</div>
+
+<script>
+let charts = {};
+let currentView = 'dashboard';
+
+function setView(v, btn) {
+  currentView = v;
+  ['dashboard','sensitivity','histogram'].forEach(id => {
+    document.getElementById('view-' + id).style.display = id === v ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  update();
+}
+
+function vut(cva, cvs, pt, u) {
+  return ((cva * cva + cvs * cvs) / 2) * pt * (u / (1 - u));
+}
+
+function exponential(mean) {
+  return -mean * Math.log(Math.random() || 1e-10);
+}
+
+function erlang(k, mean) {
+  let s = 0;
+  for (let i = 0; i < k; i++) s += exponential(mean / k);
+  return s;
+}
+
+function sampleCV(mean, cv) {
+  if (cv <= 0.01) return mean;
+  if (cv <= 0.5) {
+    const k = Math.max(1, Math.round(1 / (cv * cv)));
+    return erlang(k, mean);
+  }
+  return exponential(mean);
+}
+
+function simulate(cva, cvs, pt, u, boeingPct, nJobs) {
+  const arrivalRate = u / pt;
+  const meanIAT = 1 / arrivalRate;
+  let arrivals = [], t = 0;
+  for (let i = 0; i < nJobs; i++) {
+    t += sampleCV(meanIAT, cva);
+    arrivals.push({ arrTime: t, isBoeing: Math.random() < boeingPct / 100 });
+  }
+  let serverFree = 0, waitTimes = [], boeingWaits = [], queueOverTime = [];
+  for (let i = 0; i < arrivals.length; i++) {
+    const j = arrivals[i];
+    const start = Math.max(j.arrTime, serverFree);
+    const svcTime = sampleCV(pt, cvs);
+    const wait = start - j.arrTime;
+    serverFree = start + svcTime;
+    waitTimes.push(wait);
+    if (j.isBoeing) boeingWaits.push(wait);
+    if (i % Math.max(1, Math.floor(nJobs / 50)) === 0) {
+      const remaining = arrivals.slice(i).filter(x => x.arrTime < serverFree).length;
+      queueOverTime.push({
+        t: j.arrTime,
+        q: remaining,
+        bq: arrivals.slice(i).filter(x => x.arrTime < serverFree && x.isBoeing).length
+      });
+    }
+  }
+  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  return { avgWait: avg(waitTimes), boeingAvgWait: avg(boeingWaits), waitTimes, boeingWaits, queueOverTime };
+}
+
+function makeOrUpdate(id, config) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) { charts[id].destroy(); }
+  charts[id] = new Chart(ctx, config);
+}
+
+const gridColor = 'rgba(128,128,128,0.10)';
+const axisColor = '#9e9d97';
+const tickFont = { size: 11, family: 'Courier New, monospace' };
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Courier New, monospace', size: 12 } } },
+  scales: {
+    x: { grid: { color: gridColor }, ticks: { color: axisColor, font: tickFont } },
+    y: { grid: { color: gridColor }, ticks: { color: axisColor, font: tickFont } }
+  }
+};
+
+function update() {
+  const cva  = parseFloat(document.getElementById('cva').value);
+  const cvs  = parseFloat(document.getElementById('cvs').value);
+  const pt   = parseFloat(document.getElementById('pt').value);
+  const u    = parseFloat(document.getElementById('util').value) / 100;
+  const mix  = parseInt(document.getElementById('mix').value);
+
+  document.getElementById('cva-out').textContent   = cva.toFixed(1);
+  document.getElementById('cvs-out').textContent   = cvs.toFixed(1);
+  document.getElementById('pt-out').textContent    = pt.toFixed(1);
+  document.getElementById('u-out').textContent     = Math.round(u * 100) + '%';
+  document.getElementById('mix-out').textContent   = mix + '%';
+  document.getElementById('boeing-lbl').textContent = mix + '% Boeing';
+  document.getElementById('other-lbl').textContent  = (100 - mix) + '% other';
+
+  const vutWait = vut(cva, cvs, pt, u);
+  const sim = simulate(cva, cvs, pt, u, mix, 800);
+
+  document.getElementById('metrics-row').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">VUT wait</div>
+      <div class="metric-val">${vutWait.toFixed(1)}h</div>
+      <div class="metric-sub">Kingman formula</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Simulated wait</div>
+      <div class="metric-val">${sim.avgWait.toFixed(1)}h</div>
+      <div class="metric-sub">All job types</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Boeing wait</div>
+      <div class="metric-val">${sim.boeingAvgWait.toFixed(1)}h</div>
+      <div class="metric-sub">${mix}% of arrivals</div>
+    </div>
+  `;
+
+  const pctErr = vutWait > 0 ? Math.abs(vutWait - sim.avgWait) / vutWait * 100 : 0;
+  const uMsg = u >= 0.9 ? 'Critical: utilization ≥90% causes exponential wait times — system approaching breakdown.' :
+               u >= 0.75 ? 'Caution: past 75% utilization waits grow rapidly. Small increases have outsized impact.' :
+               'System has capacity headroom. Variability is the dominant driver of delays at this utilization.';
+  document.getElementById('insight-box').textContent =
+    `${uMsg} VUT vs. simulation error: ${pctErr.toFixed(0)}%. Boeing waits ` +
+    `${sim.boeingAvgWait > sim.avgWait ? 'above' : 'below'} average (shared FCFS queue — no priority).`;
+
+  if (currentView === 'dashboard') {
+    const uLabels = [10,20,30,40,50,60,70,80,85,90,92,95,97,99];
+    const vutCurve = uLabels.map(ul => +vut(cva, cvs, pt, ul/100).toFixed(2));
+    const simCurve = uLabels.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
+
+    makeOrUpdate('c-util', {
+      type: 'line',
+      data: {
+        labels: uLabels.map(l => l + '%'),
+        datasets: [
+          { label: 'VUT', data: vutCurve, borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Sim', data: simCurve, borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
+        ]
+      },
+      options: { ...baseOpts }
+    });
+
+    const cvRange = [0.1,0.3,0.5,0.7,1.0,1.2,1.5,1.8,2.0,2.5];
+    makeOrUpdate('c-var', {
+      type: 'line',
+      data: {
+        labels: cvRange,
+        datasets: [
+          { label: 'CVₐ sweep', data: cvRange.map(c => +vut(c, cvs, pt, u).toFixed(2)), borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'CVₛ sweep', data: cvRange.map(c => +vut(cva, c, pt, u).toFixed(2)), borderColor: '#993c1d', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
+        ]
+      },
+      options: { ...baseOpts }
+    });
+
+    const uComp = [40,50,60,70,75,80,85,90,95];
+    const simComp = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
+    const boeingComp = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).boeingAvgWait.toFixed(2));
+    const vutComp = uComp.map(ul => +vut(cva, cvs, pt, ul/100).toFixed(2));
+
+    makeOrUpdate('c-comp', {
+      type: 'line',
+      data: {
+        labels: uComp.map(l => l + '%'),
+        datasets: [
+          { label: 'VUT', data: vutComp, borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Simulation', data: simComp, borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] },
+          { label: 'Boeing', data: boeingComp, borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [2,2] }
+        ]
+      },
+      options: { ...baseOpts }
+    });
+
+    const qt = sim.queueOverTime;
+    makeOrUpdate('c-queue', {
+      type: 'line',
+      data: {
+        labels: qt.map((d, i) => i % 5 === 0 ? Math.round(d.t) + 'h' : ''),
+        datasets: [
+          { label: 'All jobs', data: qt.map(d => d.q), borderColor: '#185fa5', backgroundColor: 'rgba(24,95,165,0.07)', fill: true, pointRadius: 0, tension: 0.3, borderWidth: 1.5 },
+          { label: 'Boeing', data: qt.map(d => d.bq), borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 0, tension: 0.3, borderWidth: 1.5, borderDash: [4,3] }
+        ]
+      },
+      options: { ...baseOpts }
+    });
+
+  } else if (currentView === 'sensitivity') {
+    const uRange = [10,20,30,40,50,60,70,75,80,85,90,92,95];
+    const cvLevels = [0.5, 1.0, 1.5, 2.0, 2.5];
+    const colors = ['#b5d4f4','#378add','#185fa5','#d85a30','#993c1d'];
+    makeOrUpdate('c-sens', {
+      type: 'line',
+      data: {
+        labels: uRange.map(l => l + '%'),
+        datasets: cvLevels.map((cv, i) => ({
+          label: 'CVₐ = ' + cv,
+          data: uRange.map(ul => +vut(cv, cvs, pt, ul/100).toFixed(2)),
+          borderColor: colors[i], backgroundColor: 'transparent',
+          pointRadius: 2, tension: 0.35, borderWidth: 2
+        }))
+      },
+      options: {
+        ...baseOpts,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { color: axisColor, font: tickFont, boxWidth: 12, usePointStyle: true, padding: 14 } },
+          tooltip: { mode: 'index', intersect: false }
+        }
+      }
+    });
+
+  } else if (currentView === 'histogram') {
+    const allW = sim.waitTimes;
+    const bW = sim.boeingWaits;
+    const maxW = Math.max(...allW, 1) * 1.02;
+    const bins = 20, binSize = maxW / bins;
+    const allCounts = Array(bins).fill(0);
+    const bCounts = Array(bins).fill(0);
+    allW.forEach(w => { const b = Math.min(Math.floor(w / binSize), bins - 1); allCounts[b]++; });
+    bW.forEach(w => { const b = Math.min(Math.floor(w / binSize), bins - 1); bCounts[b]++; });
+    makeOrUpdate('c-hist', {
+      type: 'bar',
+      data: {
+        labels: allCounts.map((_, i) => (i * binSize).toFixed(1)),
+        datasets: [
+          { label: 'All jobs', data: allCounts, backgroundColor: 'rgba(24,95,165,0.45)', borderColor: '#185fa5', borderWidth: 1 },
+          { label: 'Boeing', data: bCounts, backgroundColor: 'rgba(186,117,23,0.45)', borderColor: '#ba7517', borderWidth: 1 }
+        ]
+      },
+      options: {
+        ...baseOpts,
+        scales: {
+          x: { ...baseOpts.scales.x, title: { display: true, text: 'Wait time (hrs)', color: axisColor, font: tickFont } },
+          y: { ...baseOpts.scales.y, title: { display: true, text: 'Job count', color: axisColor, font: tickFont } }
+        }
+      }
+    });
+  }
+}
+
+update();
+</script>
+</body>
+</html>
