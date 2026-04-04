@@ -84,6 +84,7 @@
     margin-top: 10px;
   }
 
+  /* ── Layout ── */
   .app {
     max-width: 960px;
     margin: 0 auto;
@@ -143,8 +144,7 @@
 
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border-radius: 50%;
     background: var(--blue);
     cursor: pointer;
@@ -153,8 +153,7 @@
   }
 
   input[type=range]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border-radius: 50%;
     background: var(--blue);
     cursor: pointer;
@@ -178,8 +177,10 @@
     .pill-other   { background: #2c2c2a; color: #b4b2a9; }
   }
 
+  /* ── Right panel ── */
   .right { display: flex; flex-direction: column; gap: 1rem; }
 
+  /* ── Metrics ── */
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
   .metric {
@@ -207,6 +208,7 @@
 
   .metric-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; font-style: italic; }
 
+  /* ── Tabs ── */
   .tab-bar {
     display: flex;
     gap: 2px;
@@ -218,9 +220,9 @@
 
   .tab {
     flex: 1;
-    padding: 7px 10px;
+    padding: 7px 8px;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     border: none;
     background: transparent;
@@ -236,6 +238,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
+  /* ── Charts ── */
   .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
   .chart-box {
@@ -246,10 +249,8 @@
   }
 
   .chart-title { font-size: 13px; color: var(--text); margin-bottom: 2px; }
-
-  .chart-desc { font-size: 11px; color: var(--text-3); font-style: italic; margin-bottom: 10px; }
-
-  .chart-wrap { position: relative; width: 100%; height: 190px; }
+  .chart-desc  { font-size: 11px; color: var(--text-3); font-style: italic; margin-bottom: 10px; }
+  .chart-wrap  { position: relative; width: 100%; height: 190px; }
 
   .chart-legend {
     display: flex;
@@ -262,9 +263,9 @@
   }
 
   .chart-legend span { display: flex; align-items: center; gap: 5px; }
-
   .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
 
+  /* ── Insight bar ── */
   .insight {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -276,10 +277,177 @@
     font-style: italic;
   }
 
+  /* ── Data Input tab styles ── */
+  .data-section { display: flex; flex-direction: column; gap: 1rem; }
+
+  .data-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-2);
+    font-style: italic;
+  }
+
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .data-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.1rem;
+  }
+
+  .data-box-title {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .data-box-desc {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 130px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    line-height: 1.5;
+  }
+
+  textarea:focus { border-color: var(--blue); }
+
+  .data-company-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .parse-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    margin-top: 0.25rem;
+    transition: opacity 0.15s;
+  }
+
+  .parse-btn:hover { opacity: 0.88; }
+
+  /* ── Derivation steps ── */
+  .derivation {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+
+  .deriv-title {
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--text);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .deriv-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .deriv-step {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
+
+  .step-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-body { display: flex; flex-direction: column; gap: 2px; }
+
+  .step-label {
+    font-size: 12px;
+    color: var(--text-2);
+    font-style: italic;
+  }
+
+  .step-formula {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .step-result {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--blue);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .step-result.pending { color: var(--text-3); font-weight: normal; }
+
+  .apply-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: opacity 0.15s;
+  }
+
+  .apply-btn:hover { opacity: 0.88; }
+  .apply-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .error-msg {
+    font-size: 12px;
+    color: var(--coral);
+    font-family: 'Courier New', monospace;
+    margin-top: 6px;
+    display: none;
+  }
+
+  /* ── Responsive ── */
   @media (max-width: 720px) {
     .app { grid-template-columns: 1fr; }
     .controls { position: static; }
-    .charts-grid { grid-template-columns: 1fr; }
+    .charts-grid, .data-grid, .data-company-row { grid-template-columns: 1fr; }
     .metrics { grid-template-columns: 1fr 1fr; }
   }
 </style>
@@ -293,6 +461,8 @@
 </div>
 
 <div class="app">
+
+  <!-- Left: sliders -->
   <div class="controls">
     <div class="ctrl-heading">Parameters</div>
 
@@ -322,15 +492,19 @@
     </div>
   </div>
 
+  <!-- Right: tabs + content -->
   <div class="right">
+
     <div class="metrics" id="metrics-row"></div>
 
     <div class="tab-bar">
-      <button class="tab active" onclick="setView('dashboard', this)">Dashboard</button>
-      <button class="tab" onclick="setView('sensitivity', this)">Sensitivity</button>
-      <button class="tab" onclick="setView('histogram', this)">Distribution</button>
+      <button class="tab active" onclick="setView('dashboard',   this)">Dashboard</button>
+      <button class="tab"        onclick="setView('sensitivity', this)">Sensitivity</button>
+      <button class="tab"        onclick="setView('histogram',   this)">Distribution</button>
+      <button class="tab"        onclick="setView('datainput',   this)">Data Input</button>
     </div>
 
+    <!-- Dashboard -->
     <div id="view-dashboard">
       <div class="charts-grid">
         <div class="chart-box">
@@ -373,6 +547,7 @@
       </div>
     </div>
 
+    <!-- Sensitivity -->
     <div id="view-sensitivity" style="display:none">
       <div class="chart-box">
         <div class="chart-title">Sensitivity: wait time by utilization &amp; CVₐ level</div>
@@ -381,6 +556,7 @@
       </div>
     </div>
 
+    <!-- Histogram -->
     <div id="view-histogram" style="display:none">
       <div class="chart-box">
         <div class="chart-title">Wait time distribution</div>
@@ -393,50 +569,288 @@
       </div>
     </div>
 
+    <!-- ── Data Input tab ── -->
+    <div id="view-datainput" style="display:none">
+      <div class="data-section">
+
+        <div class="data-intro">
+          Paste raw operational data below — one number per line. The simulator will compute CVₐ, CVₛ, and u from your data and automatically update the sliders and model.
+        </div>
+
+        <div class="data-grid">
+          <div class="data-box">
+            <div class="data-box-title">Arrival timestamps</div>
+            <div class="data-box-desc">Time each job arrived (hrs from start). One value per line.</div>
+            <textarea id="arr-input" placeholder="0.0&#10;1.2&#10;2.5&#10;3.1&#10;5.0&#10;6.8&#10;7.3&#10;9.0&#10;10.4&#10;12.1"></textarea>
+          </div>
+          <div class="data-box">
+            <div class="data-box-title">Processing (service) times</div>
+            <div class="data-box-desc">How long each job took to process (hrs). One value per line.</div>
+            <textarea id="svc-input" placeholder="3.8&#10;4.2&#10;5.1&#10;3.5&#10;4.0&#10;4.8&#10;3.9&#10;4.3&#10;4.1&#10;3.7"></textarea>
+          </div>
+        </div>
+
+        <div class="data-company-row">
+          <div class="data-box">
+            <div class="data-box-title">The Company job labels</div>
+            <div class="data-box-desc">Enter 1 for The Company, 0 for other — one per line, matching arrivals order. Leave blank to use current mix slider.</div>
+            <textarea id="label-input" style="height:90px" placeholder="1&#10;0&#10;1&#10;1&#10;0&#10;0&#10;1&#10;0&#10;1&#10;1"></textarea>
+          </div>
+          <div class="data-box" style="display:flex;flex-direction:column;justify-content:flex-end;">
+            <div class="data-box-desc" style="margin-bottom:8px">Click to parse your data and compute parameters.</div>
+            <button class="parse-btn" onclick="parseData()">Compute parameters from data</button>
+            <div class="error-msg" id="parse-error"></div>
+          </div>
+        </div>
+
+        <!-- Derivation walkthrough -->
+        <div class="derivation" id="derivation-box">
+          <div class="deriv-title">How your data becomes model parameters</div>
+          <div class="deriv-steps">
+
+            <div class="deriv-step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-label">Compute inter-arrival times (IAT) — differences between consecutive arrival timestamps</div>
+                <div class="step-formula">IAT = [t₂−t₁, t₃−t₂, ...]</div>
+              </div>
+              <div class="step-result pending" id="d-iat">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-label">Mean and standard deviation of IAT → CVₐ = σ(IAT) / μ(IAT)</div>
+                <div class="step-formula" id="d-cva-formula">CVₐ = σ / μ</div>
+              </div>
+              <div class="step-result pending" id="d-cva">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-label">Mean and standard deviation of service times → CVₛ = σ(S) / μ(S)</div>
+                <div class="step-formula" id="d-cvs-formula">CVₛ = σ / μ</div>
+              </div>
+              <div class="step-result pending" id="d-cvs">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-label">Average processing time μ(S) — used directly as T in VUT</div>
+                <div class="step-formula">T = μ(S)</div>
+              </div>
+              <div class="step-result pending" id="d-pt">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-label">Utilization u = arrival rate × avg service time = μ(S) / μ(IAT)</div>
+                <div class="step-formula" id="d-u-formula">u = T / μ(IAT)</div>
+              </div>
+              <div class="step-result pending" id="d-u">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">6</div>
+              <div class="step-body">
+                <div class="step-label">The Company job mix — fraction of jobs labelled 1</div>
+                <div class="step-formula">mix = count(1s) / total jobs</div>
+              </div>
+              <div class="step-result pending" id="d-mix">awaiting data</div>
+            </div>
+
+            <div class="deriv-step">
+              <div class="step-num">7</div>
+              <div class="step-body">
+                <div class="step-label">Plug into Kingman's formula to get predicted wait time</div>
+                <div class="step-formula" id="d-vut-formula">Wait = ((CVₐ²+CVₛ²)/2) × T × u/(1−u)</div>
+              </div>
+              <div class="step-result pending" id="d-vut">awaiting data</div>
+            </div>
+
+          </div>
+          <button class="apply-btn" id="apply-btn" onclick="applyDerivedParams()" disabled>
+            Apply computed parameters to model →
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <div class="insight" id="insight-box"></div>
   </div>
 </div>
 
 <script>
+/* ─────────────────────────────────────────────
+   State
+───────────────────────────────────────────── */
 let charts = {};
 let currentView = 'dashboard';
+let derivedParams = null;  // set by parseData()
 
+/* ─────────────────────────────────────────────
+   View switching
+───────────────────────────────────────────── */
 function setView(v, btn) {
   currentView = v;
-  ['dashboard','sensitivity','histogram'].forEach(id => {
+  ['dashboard','sensitivity','histogram','datainput'].forEach(id => {
     document.getElementById('view-' + id).style.display = id === v ? '' : 'none';
   });
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  update();
+  if (v !== 'datainput') update();
 }
 
-function vut(cva, cvs, pt, u) {
+/* ─────────────────────────────────────────────
+   Statistics helpers
+───────────────────────────────────────────── */
+function mean(arr)   { return arr.reduce((a, b) => a + b, 0) / arr.length; }
+function stddev(arr) {
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length);
+}
+function cv(arr)     { const m = mean(arr); return m === 0 ? 0 : stddev(arr) / m; }
+
+function parseLines(text) {
+  return text.trim().split(/\s+|\n|,/).map(s => parseFloat(s)).filter(n => !isNaN(n));
+}
+
+/* ─────────────────────────────────────────────
+   Data Input — parse & derive
+───────────────────────────────────────────── */
+function parseData() {
+  const errEl = document.getElementById('parse-error');
+  errEl.style.display = 'none';
+
+  const arrTimes = parseLines(document.getElementById('arr-input').value);
+  const svcTimes = parseLines(document.getElementById('svc-input').value);
+  const labelRaw = document.getElementById('label-input').value.trim();
+
+  if (arrTimes.length < 2) { showErr('Need at least 2 arrival timestamps.'); return; }
+  if (svcTimes.length < 1) { showErr('Need at least 1 service time.'); return; }
+
+  // Inter-arrival times
+  const iats = [];
+  for (let i = 1; i < arrTimes.length; i++) {
+    const d = arrTimes[i] - arrTimes[i - 1];
+    if (d < 0) { showErr('Arrival timestamps must be in ascending order.'); return; }
+    iats.push(d);
+  }
+
+  const meanIAT = mean(iats);
+  const sdIAT   = stddev(iats);
+  const cva     = meanIAT === 0 ? 0 : sdIAT / meanIAT;
+
+  const meanSvc = mean(svcTimes);
+  const sdSvc   = stddev(svcTimes);
+  const cvs     = meanSvc === 0 ? 0 : sdSvc / meanSvc;
+
+  const u   = Math.min(0.99, meanSvc / meanIAT);
+  const pt  = meanSvc;
+
+  // Job mix
+  let companyPct;
+  if (labelRaw === '') {
+    companyPct = parseInt(document.getElementById('mix').value);
+  } else {
+    const labels = parseLines(labelRaw);
+    const ones   = labels.filter(l => l === 1).length;
+    companyPct   = Math.round((ones / labels.length) * 100);
+  }
+
+  const vutWait = vutFn(cva, cvs, pt, u);
+
+  // Store for apply
+  derivedParams = { cva, cvs, pt, u, companyPct };
+
+  // Update derivation display
+  const fmt = (n, d=3) => n.toFixed(d);
+
+  setResult('d-iat', `n = ${iats.length} intervals`);
+  document.getElementById('d-cva-formula').textContent =
+    `CVₐ = ${fmt(sdIAT)} / ${fmt(meanIAT)} = ${fmt(cva, 3)}`;
+  setResult('d-cva', `CVₐ = ${fmt(cva, 3)}`);
+
+  document.getElementById('d-cvs-formula').textContent =
+    `CVₛ = ${fmt(sdSvc)} / ${fmt(meanSvc)} = ${fmt(cvs, 3)}`;
+  setResult('d-cvs', `CVₛ = ${fmt(cvs, 3)}`);
+
+  setResult('d-pt',  `T = ${fmt(meanSvc, 2)} hrs`);
+
+  document.getElementById('d-u-formula').textContent =
+    `u = ${fmt(meanSvc, 2)} / ${fmt(meanIAT, 2)} = ${fmt(u, 3)}`;
+  setResult('d-u',  `u = ${(u * 100).toFixed(1)}%`);
+
+  setResult('d-mix', `${companyPct}% The Company`);
+
+  document.getElementById('d-vut-formula').textContent =
+    `Wait = ((${fmt(cva,2)}²+${fmt(cvs,2)}²)/2) × ${fmt(pt,2)} × ${fmt(u,3)}/(1−${fmt(u,3)})`;
+  setResult('d-vut', `${fmt(vutWait, 2)} hrs`);
+
+  document.getElementById('apply-btn').disabled = false;
+
+  function showErr(msg) {
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+  }
+}
+
+function setResult(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.remove('pending');
+}
+
+/* ─────────────────────────────────────────────
+   Apply derived params → sliders
+───────────────────────────────────────────── */
+function applyDerivedParams() {
+  if (!derivedParams) return;
+  const { cva, cvs, pt, u, companyPct } = derivedParams;
+
+  // Clamp to slider ranges
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  document.getElementById('cva').value  = clamp(cva,  0.1, 2.5).toFixed(1);
+  document.getElementById('cvs').value  = clamp(cvs,  0.1, 2.5).toFixed(1);
+  document.getElementById('pt').value   = clamp(pt,   1,   20).toFixed(1);
+  document.getElementById('util').value = Math.round(clamp(u * 100, 5, 99));
+  document.getElementById('mix').value  = Math.round(clamp(companyPct, 5, 95) / 5) * 5;
+
+  // Switch to dashboard and run
+  setView('dashboard', document.querySelectorAll('.tab')[0]);
+}
+
+/* ─────────────────────────────────────────────
+   VUT formula
+───────────────────────────────────────────── */
+function vutFn(cva, cvs, pt, u) {
   return ((cva * cva + cvs * cvs) / 2) * pt * (u / (1 - u));
 }
 
-function exponential(mean) {
-  return -mean * Math.log(Math.random() || 1e-10);
-}
+/* ─────────────────────────────────────────────
+   Simulation
+───────────────────────────────────────────── */
+function exponential(m) { return -m * Math.log(Math.random() || 1e-10); }
 
-function erlang(k, mean) {
+function erlang(k, m) {
   let s = 0;
-  for (let i = 0; i < k; i++) s += exponential(mean / k);
+  for (let i = 0; i < k; i++) s += exponential(m / k);
   return s;
 }
 
-function sampleCV(mean, cv) {
-  if (cv <= 0.01) return mean;
-  if (cv <= 0.5) {
-    const k = Math.max(1, Math.round(1 / (cv * cv)));
-    return erlang(k, mean);
-  }
-  return exponential(mean);
+function sampleCV(m, cv) {
+  if (cv <= 0.01) return m;
+  if (cv <= 0.5) return erlang(Math.max(1, Math.round(1 / (cv * cv))), m);
+  return exponential(m);
 }
 
 function simulate(cva, cvs, pt, u, companyPct, nJobs) {
-  const arrivalRate = u / pt;
-  const meanIAT = 1 / arrivalRate;
+  const meanIAT = pt / u;
   let arrivals = [], t = 0;
   for (let i = 0; i < nJobs; i++) {
     t += sampleCV(meanIAT, cva);
@@ -452,10 +866,10 @@ function simulate(cva, cvs, pt, u, companyPct, nJobs) {
     waitTimes.push(wait);
     if (j.isCompany) companyWaits.push(wait);
     if (i % Math.max(1, Math.floor(nJobs / 50)) === 0) {
-      const remaining = arrivals.slice(i).filter(x => x.arrTime < serverFree).length;
+      const rem = arrivals.slice(i).filter(x => x.arrTime < serverFree).length;
       queueOverTime.push({
         t: j.arrTime,
-        q: remaining,
+        q: rem,
         cq: arrivals.slice(i).filter(x => x.arrTime < serverFree && x.isCompany).length
       });
     }
@@ -464,6 +878,9 @@ function simulate(cva, cvs, pt, u, companyPct, nJobs) {
   return { avgWait: avg(waitTimes), companyAvgWait: avg(companyWaits), waitTimes, companyWaits, queueOverTime };
 }
 
+/* ─────────────────────────────────────────────
+   Chart helpers
+───────────────────────────────────────────── */
 function makeOrUpdate(id, config) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
@@ -473,8 +890,8 @@ function makeOrUpdate(id, config) {
 
 const gridColor = 'rgba(128,128,128,0.10)';
 const axisColor = '#9e9d97';
-const tickFont = { size: 11, family: 'Courier New, monospace' };
-const baseOpts = {
+const tickFont  = { size: 11, family: 'Courier New, monospace' };
+const baseOpts  = {
   responsive: true, maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
@@ -486,6 +903,9 @@ const baseOpts = {
   }
 };
 
+/* ─────────────────────────────────────────────
+   Main update
+───────────────────────────────────────────── */
 function update() {
   const cva = parseFloat(document.getElementById('cva').value);
   const cvs = parseFloat(document.getElementById('cvs').value);
@@ -501,8 +921,8 @@ function update() {
   document.getElementById('company-lbl').textContent = mix + '% The Company';
   document.getElementById('other-lbl').textContent   = (100 - mix) + '% other';
 
-  const vutWait = vut(cva, cvs, pt, u);
-  const sim = simulate(cva, cvs, pt, u, mix, 800);
+  const vutWait = vutFn(cva, cvs, pt, u);
+  const sim     = simulate(cva, cvs, pt, u, mix, 800);
 
   document.getElementById('metrics-row').innerHTML = `
     <div class="metric">
@@ -523,7 +943,7 @@ function update() {
   `;
 
   const pctErr = vutWait > 0 ? Math.abs(vutWait - sim.avgWait) / vutWait * 100 : 0;
-  const uMsg = u >= 0.9
+  const uMsg   = u >= 0.9
     ? 'Critical: utilization ≥90% causes exponential wait times — system approaching breakdown.'
     : u >= 0.75
     ? 'Caution: past 75% utilization waits grow rapidly. Small increases have outsized impact.'
@@ -533,8 +953,8 @@ function update() {
     `${sim.companyAvgWait > sim.avgWait ? 'above' : 'below'} average (shared FCFS queue — no priority).`;
 
   if (currentView === 'dashboard') {
-    const uLabels = [10,20,30,40,50,60,70,80,85,90,92,95,97,99];
-    const vutCurve = uLabels.map(ul => +vut(cva, cvs, pt, ul/100).toFixed(2));
+    const uLabels  = [10,20,30,40,50,60,70,80,85,90,92,95,97,99];
+    const vutCurve = uLabels.map(ul => +vutFn(cva, cvs, pt, ul/100).toFixed(2));
     const simCurve = uLabels.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
 
     makeOrUpdate('c-util', {
@@ -555,26 +975,26 @@ function update() {
       data: {
         labels: cvRange,
         datasets: [
-          { label: 'CVₐ sweep', data: cvRange.map(c => +vut(c, cvs, pt, u).toFixed(2)), borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
-          { label: 'CVₛ sweep', data: cvRange.map(c => +vut(cva, c, pt, u).toFixed(2)), borderColor: '#993c1d', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
+          { label: 'CVₐ sweep', data: cvRange.map(c => +vutFn(c, cvs, pt, u).toFixed(2)), borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'CVₛ sweep', data: cvRange.map(c => +vutFn(cva, c, pt, u).toFixed(2)), borderColor: '#993c1d', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
         ]
       },
       options: { ...baseOpts }
     });
 
-    const uComp = [40,50,60,70,75,80,85,90,95];
-    const vutComp     = uComp.map(ul => +vut(cva, cvs, pt, ul/100).toFixed(2));
-    const simComp     = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
-    const companyComp = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).companyAvgWait.toFixed(2));
+    const uComp      = [40,50,60,70,75,80,85,90,95];
+    const vutComp    = uComp.map(ul => +vutFn(cva, cvs, pt, ul/100).toFixed(2));
+    const simComp    = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
+    const compComp   = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).companyAvgWait.toFixed(2));
 
     makeOrUpdate('c-comp', {
       type: 'line',
       data: {
         labels: uComp.map(l => l + '%'),
         datasets: [
-          { label: 'VUT',         data: vutComp,     borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
-          { label: 'Simulation',  data: simComp,     borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] },
-          { label: 'The Company', data: companyComp, borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [2,2] }
+          { label: 'VUT',         data: vutComp,  borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Simulation',  data: simComp,  borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] },
+          { label: 'The Company', data: compComp, borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [2,2] }
         ]
       },
       options: { ...baseOpts }
@@ -587,7 +1007,7 @@ function update() {
         labels: qt.map((d, i) => i % 5 === 0 ? Math.round(d.t) + 'h' : ''),
         datasets: [
           { label: 'All jobs',    data: qt.map(d => d.q),  borderColor: '#185fa5', backgroundColor: 'rgba(24,95,165,0.07)', fill: true, pointRadius: 0, tension: 0.3, borderWidth: 1.5 },
-          { label: 'The Company', data: qt.map(d => d.cq), borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 0, tension: 0.3, borderWidth: 1.5, borderDash: [4,3] }
+          { label: 'The Company', data: qt.map(d => d.cq), borderColor: '#ba7517', backgroundColor: 'transparent',           pointRadius: 0, tension: 0.3, borderWidth: 1.5, borderDash: [4,3] }
         ]
       },
       options: { ...baseOpts }
@@ -601,9 +1021,9 @@ function update() {
       type: 'line',
       data: {
         labels: uRange.map(l => l + '%'),
-        datasets: cvLevels.map((cv, i) => ({
-          label: 'CVₐ = ' + cv,
-          data: uRange.map(ul => +vut(cv, cvs, pt, ul/100).toFixed(2)),
+        datasets: cvLevels.map((c, i) => ({
+          label: 'CVₐ = ' + c,
+          data: uRange.map(ul => +vutFn(c, cvs, pt, ul/100).toFixed(2)),
           borderColor: colors[i], backgroundColor: 'transparent',
           pointRadius: 2, tension: 0.35, borderWidth: 2
         }))
@@ -618,21 +1038,21 @@ function update() {
     });
 
   } else if (currentView === 'histogram') {
-    const allW = sim.waitTimes;
-    const cW   = sim.companyWaits;
-    const maxW = Math.max(...allW, 1) * 1.02;
-    const bins = 20, binSize = maxW / bins;
-    const allCounts = Array(bins).fill(0);
-    const cCounts   = Array(bins).fill(0);
-    allW.forEach(w => { const b = Math.min(Math.floor(w / binSize), bins - 1); allCounts[b]++; });
-    cW.forEach(w =>   { const b = Math.min(Math.floor(w / binSize), bins - 1); cCounts[b]++; });
+    const allW  = sim.waitTimes;
+    const cW    = sim.companyWaits;
+    const maxW  = Math.max(...allW, 1) * 1.02;
+    const bins  = 20, binSize = maxW / bins;
+    const allCt = Array(bins).fill(0);
+    const cCt   = Array(bins).fill(0);
+    allW.forEach(w => { const b = Math.min(Math.floor(w / binSize), bins - 1); allCt[b]++; });
+    cW.forEach(w =>   { const b = Math.min(Math.floor(w / binSize), bins - 1); cCt[b]++; });
     makeOrUpdate('c-hist', {
       type: 'bar',
       data: {
-        labels: allCounts.map((_, i) => (i * binSize).toFixed(1)),
+        labels: allCt.map((_, i) => (i * binSize).toFixed(1)),
         datasets: [
-          { label: 'All jobs',    data: allCounts, backgroundColor: 'rgba(24,95,165,0.45)',  borderColor: '#185fa5', borderWidth: 1 },
-          { label: 'The Company', data: cCounts,   backgroundColor: 'rgba(186,117,23,0.45)', borderColor: '#ba7517', borderWidth: 1 }
+          { label: 'All jobs',    data: allCt, backgroundColor: 'rgba(24,95,165,0.45)',  borderColor: '#185fa5', borderWidth: 1 },
+          { label: 'The Company', data: cCt,   backgroundColor: 'rgba(186,117,23,0.45)', borderColor: '#ba7517', borderWidth: 1 }
         ]
       },
       options: {
