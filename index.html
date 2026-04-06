@@ -842,19 +842,28 @@ function parseData() {
   if (arrTimes.length < 2) { showErr('Please enter at least 2 arrival times.'); return; }
   if (svcTimes.length < 1) { showErr('Please enter at least 1 processing time.'); return; }
 
+  // Filter out any zero or negative processing times silently
+  const cleanSvcTimes = svcTimes.filter(v => v > 0);
+  if (cleanSvcTimes.length < 1) { showErr('No valid processing times found — make sure the values are positive numbers in hours.'); return; }
+
+  // Auto-sort arrivals earliest to latest — no need for the user to pre-sort
+  arrTimes.sort((a, b) => a - b);
+
   const gaps = [];
   for (let i = 1; i < arrTimes.length; i++) {
     const d = arrTimes[i] - arrTimes[i - 1];
-    if (d < 0) { showErr('Arrival times must go from earliest to latest.'); return; }
-    gaps.push(d);
+    if (d > 0) gaps.push(d);
+    // Skip duplicate timestamps silently rather than erroring
   }
+
+  if (gaps.length < 1) { showErr('Could not find any valid gaps between arrival times. Please check your data.'); return; }
 
   const avgGap    = mean(gaps);
   const spreadGap = stddev(gaps);
   const cva       = avgGap === 0 ? 0 : spreadGap / avgGap;
 
-  const avgJob    = mean(svcTimes);
-  const spreadJob = stddev(svcTimes);
+  const avgJob    = mean(cleanSvcTimes);
+  const spreadJob = stddev(cleanSvcTimes);
   const cvs       = avgJob === 0 ? 0 : spreadJob / avgJob;
 
   const u  = Math.min(0.99, avgJob / avgGap);
@@ -887,7 +896,7 @@ function parseData() {
   setResult('d-cvs', `${varLabel(cvs)} (${fmt2(cvs)})`);
 
   document.getElementById('d-pt-working').textContent =
-    `Average of ${svcTimes.length} job times`;
+    `Average of ${cleanSvcTimes.length} job times`;
   setResult('d-pt', `${fmt2(avgJob)} hrs per job`);
 
   document.getElementById('d-u-working').textContent =
