@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kingman VUT Simulator — Supply Chain Queue Model</title>
+<title>Supplier Wait Time Simulator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -72,19 +72,27 @@
     font-style: italic;
   }
 
-  .equation {
-    display: inline-block;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 16px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: var(--blue);
-    margin-top: 10px;
+  .how-it-works {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
   }
 
-  /* ── Layout ── */
+  .how-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .how-pill strong {
+    color: var(--blue);
+    font-weight: 500;
+  }
+
   .app {
     max-width: 960px;
     margin: 0 auto;
@@ -110,7 +118,7 @@
     text-transform: uppercase;
     color: var(--text-3);
     margin-bottom: 1.25rem;
-    font-family: 'Courier New', monospace;
+    font-family: 'Georgia', serif;
   }
 
   .ctrl-group { margin-bottom: 1.1rem; }
@@ -126,10 +134,16 @@
   }
 
   .ctrl-val {
-    font-family: 'Courier New', monospace;
     font-size: 13px;
     color: var(--text);
-    font-weight: bold;
+    font-weight: 500;
+  }
+
+  .ctrl-hint {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+    margin-top: 3px;
   }
 
   input[type=range] {
@@ -166,7 +180,6 @@
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 12px;
-    font-family: 'Courier New', monospace;
   }
 
   .pill-company { background: #dceefb; color: #0c447c; }
@@ -177,10 +190,8 @@
     .pill-other   { background: #2c2c2a; color: #b4b2a9; }
   }
 
-  /* ── Right panel ── */
   .right { display: flex; flex-direction: column; gap: 1rem; }
 
-  /* ── Metrics ── */
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
   .metric {
@@ -196,7 +207,7 @@
     letter-spacing: 0.06em;
     color: var(--text-3);
     margin-bottom: 6px;
-    font-family: 'Courier New', monospace;
+    font-family: 'Georgia', serif;
   }
 
   .metric-val {
@@ -208,7 +219,6 @@
 
   .metric-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; font-style: italic; }
 
-  /* ── Tabs ── */
   .tab-bar {
     display: flex;
     gap: 2px;
@@ -238,7 +248,6 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
-  /* ── Charts ── */
   .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
   .chart-box {
@@ -259,13 +268,11 @@
     margin-top: 8px;
     font-size: 11px;
     color: var(--text-2);
-    font-family: 'Courier New', monospace;
   }
 
   .chart-legend span { display: flex; align-items: center; gap: 5px; }
   .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
 
-  /* ── Insight bar ── */
   .insight {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -277,7 +284,7 @@
     font-style: italic;
   }
 
-  /* ── Data Input tab styles ── */
+  /* Data Input tab */
   .data-section { display: flex; flex-direction: column; gap: 1rem; }
 
   .data-intro {
@@ -300,11 +307,7 @@
     padding: 1rem 1.1rem;
   }
 
-  .data-box-title {
-    font-size: 13px;
-    color: var(--text);
-    margin-bottom: 3px;
-  }
+  .data-box-title { font-size: 13px; color: var(--text); margin-bottom: 3px; }
 
   .data-box-desc {
     font-size: 11px;
@@ -316,8 +319,8 @@
   textarea {
     width: 100%;
     height: 130px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
+    font-family: 'Georgia', serif;
+    font-size: 13px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -330,11 +333,7 @@
 
   textarea:focus { border-color: var(--blue); }
 
-  .data-company-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
+  .data-company-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
   .parse-btn {
     width: 100%;
@@ -352,7 +351,6 @@
 
   .parse-btn:hover { opacity: 0.88; }
 
-  /* ── Derivation steps ── */
   .derivation {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -362,61 +360,53 @@
 
   .deriv-title {
     font-size: 13px;
-    font-weight: normal;
     color: var(--text);
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
   }
 
-  .deriv-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+  .deriv-steps { display: flex; flex-direction: column; gap: 0.85rem; }
 
   .deriv-step {
     display: grid;
-    grid-template-columns: 18px 1fr auto;
+    grid-template-columns: 20px 1fr auto;
     gap: 10px;
     align-items: start;
   }
 
   .step-num {
-    width: 18px;
-    height: 18px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: var(--blue);
     color: #fff;
     font-size: 10px;
-    font-family: 'Courier New', monospace;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
-  .step-body { display: flex; flex-direction: column; gap: 2px; }
+  .step-body { display: flex; flex-direction: column; gap: 3px; }
 
-  .step-label {
-    font-size: 12px;
-    color: var(--text-2);
+  .step-label { font-size: 12px; color: var(--text-2); }
+
+  .step-working {
+    font-size: 11px;
+    color: var(--text-3);
     font-style: italic;
   }
 
-  .step-formula {
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    color: var(--text-3);
-  }
-
   .step-result {
-    font-family: 'Courier New', monospace;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
     color: var(--blue);
     white-space: nowrap;
-    padding-top: 2px;
+    padding-top: 1px;
   }
 
-  .step-result.pending { color: var(--text-3); font-weight: normal; }
+  .step-result.pending { color: var(--text-3); font-weight: normal; font-style: italic; font-size: 12px; }
 
   .apply-btn {
     width: 100%;
@@ -428,7 +418,7 @@
     font-size: 13px;
     font-family: 'Georgia', serif;
     cursor: pointer;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     transition: opacity 0.15s;
   }
 
@@ -438,12 +428,11 @@
   .error-msg {
     font-size: 12px;
     color: var(--coral);
-    font-family: 'Courier New', monospace;
     margin-top: 6px;
+    font-style: italic;
     display: none;
   }
 
-  /* ── Responsive ── */
   @media (max-width: 720px) {
     .app { grid-template-columns: 1fr; }
     .controls { position: static; }
@@ -455,35 +444,62 @@
 <body>
 
 <div class="page-header">
-  <h1>Kingman's VUT Equation — Supplier Queue Simulator</h1>
-  <p>Discrete-event simulation of supplier congestion for The Company vs. non-Company parts</p>
-  <div class="equation">Wait = ((CVₐ² + CVₛ²) / 2) × ProcessingTime × u / (1 − u)</div>
+  <h1>Supplier Wait Time Simulator</h1>
+  <p>How long do parts spend waiting at a supplier before work even begins — and what drives that delay?</p>
+  <div class="how-it-works">
+    <div class="how-pill"><strong>Busier supplier</strong> → longer waits, nonlinearly</div>
+    <div class="how-pill"><strong>More unpredictable arrivals</strong> → longer waits</div>
+    <div class="how-pill"><strong>More variable job times</strong> → longer waits</div>
+  </div>
 </div>
 
 <div class="app">
 
   <!-- Left: sliders -->
   <div class="controls">
-    <div class="ctrl-heading">Parameters</div>
+    <div class="ctrl-heading">Adjust the scenario</div>
 
     <div class="ctrl-group">
-      <div class="ctrl-label">Arrival variability (CVₐ) <span class="ctrl-val" id="cva-out">1.0</span></div>
+      <div class="ctrl-label">
+        How unpredictable are arrivals?
+        <span class="ctrl-val" id="cva-out">moderate</span>
+      </div>
       <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cva" oninput="update()">
+      <div class="ctrl-hint">Low = orders arrive on a regular schedule. High = orders arrive in unpredictable bursts.</div>
     </div>
+
     <div class="ctrl-group">
-      <div class="ctrl-label">Service variability (CVₛ) <span class="ctrl-val" id="cvs-out">1.0</span></div>
+      <div class="ctrl-label">
+        How variable are job times?
+        <span class="ctrl-val" id="cvs-out">moderate</span>
+      </div>
       <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cvs" oninput="update()">
+      <div class="ctrl-hint">Low = jobs take roughly the same time. High = some jobs take much longer than others.</div>
     </div>
+
     <div class="ctrl-group">
-      <div class="ctrl-label">Avg processing time (hrs) <span class="ctrl-val" id="pt-out">4.0</span></div>
+      <div class="ctrl-label">
+        Average time to process a job
+        <span class="ctrl-val" id="pt-out">4.0 hrs</span>
+      </div>
       <input type="range" min="1" max="20" step="0.5" value="4" id="pt" oninput="update()">
+      <div class="ctrl-hint">How long the supplier spends actively working on each order.</div>
     </div>
+
     <div class="ctrl-group">
-      <div class="ctrl-label">Utilization (u) <span class="ctrl-val" id="u-out">75%</span></div>
+      <div class="ctrl-label">
+        How busy is the supplier?
+        <span class="ctrl-val" id="u-out">75%</span>
+      </div>
       <input type="range" min="5" max="99" step="1" value="75" id="util" oninput="update()">
+      <div class="ctrl-hint">The percentage of time the supplier is actively working. Above 85% is a danger zone.</div>
     </div>
+
     <div class="ctrl-group">
-      <div class="ctrl-label">The Company job mix <span class="ctrl-val" id="mix-out">50%</span></div>
+      <div class="ctrl-label">
+        Share of The Company jobs
+        <span class="ctrl-val" id="mix-out">50%</span>
+      </div>
       <input type="range" min="5" max="95" step="5" value="50" id="mix" oninput="update()">
       <div class="mix-pills">
         <span class="pill pill-company" id="company-lbl">50% The Company</span>
@@ -498,46 +514,46 @@
     <div class="metrics" id="metrics-row"></div>
 
     <div class="tab-bar">
-      <button class="tab active" onclick="setView('dashboard',   this)">Dashboard</button>
-      <button class="tab"        onclick="setView('sensitivity', this)">Sensitivity</button>
-      <button class="tab"        onclick="setView('histogram',   this)">Distribution</button>
-      <button class="tab"        onclick="setView('datainput',   this)">Data Input</button>
+      <button class="tab active" onclick="setView('dashboard',   this)">Overview</button>
+      <button class="tab"        onclick="setView('sensitivity', this)">What if?</button>
+      <button class="tab"        onclick="setView('histogram',   this)">Wait spread</button>
+      <button class="tab"        onclick="setView('datainput',   this)">Use my data</button>
     </div>
 
-    <!-- Dashboard -->
+    <!-- Overview (dashboard) -->
     <div id="view-dashboard">
       <div class="charts-grid">
         <div class="chart-box">
-          <div class="chart-title">Wait time vs. utilization</div>
-          <div class="chart-desc">Nonlinear explosion near capacity</div>
+          <div class="chart-title">Wait time vs. how busy the supplier is</div>
+          <div class="chart-desc">Small increases near full capacity cause massive delays</div>
           <div class="chart-wrap"><canvas id="c-util"></canvas></div>
           <div class="chart-legend">
-            <span><span class="leg-dot" style="background:#185fa5"></span>VUT formula</span>
-            <span><span class="leg-dot" style="background:#0f6e56"></span>Simulated</span>
+            <span><span class="leg-dot" style="background:#185fa5"></span>Formula estimate</span>
+            <span><span class="leg-dot" style="background:#0f6e56"></span>Simulated result</span>
           </div>
         </div>
         <div class="chart-box">
-          <div class="chart-title">Wait time vs. variability</div>
-          <div class="chart-desc">Impact of CVₐ and CVₛ at current u</div>
+          <div class="chart-title">Wait time vs. unpredictability</div>
+          <div class="chart-desc">Effect of irregular arrivals vs. variable job times</div>
           <div class="chart-wrap"><canvas id="c-var"></canvas></div>
           <div class="chart-legend">
-            <span><span class="leg-dot" style="background:#185fa5"></span>CVₐ sweep</span>
-            <span><span class="leg-dot" style="background:#993c1d"></span>CVₛ sweep</span>
+            <span><span class="leg-dot" style="background:#185fa5"></span>Arrival irregularity</span>
+            <span><span class="leg-dot" style="background:#993c1d"></span>Job time variability</span>
           </div>
         </div>
         <div class="chart-box">
-          <div class="chart-title">VUT vs. simulated comparison</div>
-          <div class="chart-desc">Approximation accuracy across utilization</div>
+          <div class="chart-title">Formula estimate vs. simulated result</div>
+          <div class="chart-desc">How closely the quick estimate tracks the full simulation</div>
           <div class="chart-wrap"><canvas id="c-comp"></canvas></div>
           <div class="chart-legend">
-            <span><span class="leg-dot" style="background:#185fa5"></span>VUT</span>
+            <span><span class="leg-dot" style="background:#185fa5"></span>Formula estimate</span>
             <span><span class="leg-dot" style="background:#0f6e56"></span>Simulation</span>
             <span><span class="leg-dot" style="background:#ba7517"></span>The Company only</span>
           </div>
         </div>
         <div class="chart-box">
-          <div class="chart-title">Queue length over time</div>
-          <div class="chart-desc">Simulated backlog (sample run of 800 jobs)</div>
+          <div class="chart-title">Jobs piling up over time</div>
+          <div class="chart-desc">How the backlog grows and clears across a simulated day</div>
           <div class="chart-wrap"><canvas id="c-queue"></canvas></div>
           <div class="chart-legend">
             <span><span class="leg-dot" style="background:#185fa5"></span>All jobs</span>
@@ -547,20 +563,20 @@
       </div>
     </div>
 
-    <!-- Sensitivity -->
+    <!-- What if? (sensitivity) -->
     <div id="view-sensitivity" style="display:none">
       <div class="chart-box">
-        <div class="chart-title">Sensitivity: wait time by utilization &amp; CVₐ level</div>
-        <div class="chart-desc">Each line = a different arrival variability at current CVₛ and processing time</div>
+        <div class="chart-title">What if arrivals were more or less irregular?</div>
+        <div class="chart-desc">Each line shows a different level of arrival unpredictability — from very regular (light blue) to very erratic (dark red)</div>
         <div class="chart-wrap" style="height:300px"><canvas id="c-sens"></canvas></div>
       </div>
     </div>
 
-    <!-- Histogram -->
+    <!-- Wait spread (histogram) -->
     <div id="view-histogram" style="display:none">
       <div class="chart-box">
-        <div class="chart-title">Wait time distribution</div>
-        <div class="chart-desc">Histogram of 800 simulated jobs — The Company vs. all</div>
+        <div class="chart-title">Spread of wait times across all jobs</div>
+        <div class="chart-desc">Most jobs may wait a short time, but a significant tail waits far longer — those outliers cause line stoppages</div>
         <div class="chart-wrap" style="height:300px"><canvas id="c-hist"></canvas></div>
         <div class="chart-legend">
           <span><span class="leg-dot" style="background:#185fa5"></span>All jobs</span>
@@ -569,111 +585,111 @@
       </div>
     </div>
 
-    <!-- ── Data Input tab ── -->
+    <!-- Use my data (data input) -->
     <div id="view-datainput" style="display:none">
       <div class="data-section">
 
         <div class="data-intro">
-          Paste raw operational data below — one number per line. The simulator will compute CVₐ, CVₛ, and u from your data and automatically update the sliders and model.
+          Paste real records from your supplier below. The simulator will work out how busy they are, how unpredictable their schedule is, and how variable their job times are — then show you the predicted wait time step by step.
         </div>
 
         <div class="data-grid">
           <div class="data-box">
-            <div class="data-box-title">Arrival timestamps</div>
-            <div class="data-box-desc">Time each job arrived (hrs from start). One value per line.</div>
+            <div class="data-box-title">When did each job arrive?</div>
+            <div class="data-box-desc">Paste the arrival time of each job, in hours from the start of your observation window. One number per line.</div>
             <textarea id="arr-input" placeholder="0.0&#10;1.2&#10;2.5&#10;3.1&#10;5.0&#10;6.8&#10;7.3&#10;9.0&#10;10.4&#10;12.1"></textarea>
           </div>
           <div class="data-box">
-            <div class="data-box-title">Processing (service) times</div>
-            <div class="data-box-desc">How long each job took to process (hrs). One value per line.</div>
+            <div class="data-box-title">How long did each job take to process?</div>
+            <div class="data-box-desc">The actual time spent working on each job, in hours. Not including wait time — just active processing. One number per line.</div>
             <textarea id="svc-input" placeholder="3.8&#10;4.2&#10;5.1&#10;3.5&#10;4.0&#10;4.8&#10;3.9&#10;4.3&#10;4.1&#10;3.7"></textarea>
           </div>
         </div>
 
         <div class="data-company-row">
           <div class="data-box">
-            <div class="data-box-title">The Company job labels</div>
-            <div class="data-box-desc">Enter 1 for The Company, 0 for other — one per line, matching arrivals order. Leave blank to use current mix slider.</div>
+            <div class="data-box-title">Which jobs belong to The Company?</div>
+            <div class="data-box-desc">Enter 1 for The Company's jobs, 0 for everyone else's — one per line, in the same order as the arrivals above. Leave blank to use the share slider instead.</div>
             <textarea id="label-input" style="height:90px" placeholder="1&#10;0&#10;1&#10;1&#10;0&#10;0&#10;1&#10;0&#10;1&#10;1"></textarea>
           </div>
           <div class="data-box" style="display:flex;flex-direction:column;justify-content:flex-end;">
-            <div class="data-box-desc" style="margin-bottom:8px">Click to parse your data and compute parameters.</div>
-            <button class="parse-btn" onclick="parseData()">Compute parameters from data</button>
+            <div class="data-box-desc" style="margin-bottom:8px">When you are ready, click below to analyse your data.</div>
+            <button class="parse-btn" onclick="parseData()">Analyse my data</button>
             <div class="error-msg" id="parse-error"></div>
           </div>
         </div>
 
-        <!-- Derivation walkthrough -->
+        <!-- Plain-English derivation walkthrough -->
         <div class="derivation" id="derivation-box">
-          <div class="deriv-title">How your data becomes model parameters</div>
+          <div class="deriv-title">How your data translates into wait time — step by step</div>
           <div class="deriv-steps">
 
             <div class="deriv-step">
               <div class="step-num">1</div>
               <div class="step-body">
-                <div class="step-label">Compute inter-arrival times (IAT) — differences between consecutive arrival timestamps</div>
-                <div class="step-formula">IAT = [t₂−t₁, t₃−t₂, ...]</div>
+                <div class="step-label">Work out the gaps between arrivals — how many hours passed between each job showing up</div>
+                <div class="step-working" id="d-iat-working">e.g. if jobs arrived at hour 0, 1.2, and 2.5 — the gaps are 1.2 hrs and 1.3 hrs</div>
               </div>
-              <div class="step-result pending" id="d-iat">awaiting data</div>
+              <div class="step-result pending" id="d-iat">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">2</div>
               <div class="step-body">
-                <div class="step-label">Mean and standard deviation of IAT → CVₐ = σ(IAT) / μ(IAT)</div>
-                <div class="step-formula" id="d-cva-formula">CVₐ = σ / μ</div>
+                <div class="step-label">Measure how irregular those gaps are — if all gaps are the same, arrivals are perfectly predictable; if they vary widely, arrivals are erratic</div>
+                <div class="step-working" id="d-cva-working">irregularity score = spread of gaps ÷ average gap</div>
               </div>
-              <div class="step-result pending" id="d-cva">awaiting data</div>
+              <div class="step-result pending" id="d-cva">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">3</div>
               <div class="step-body">
-                <div class="step-label">Mean and standard deviation of service times → CVₛ = σ(S) / μ(S)</div>
-                <div class="step-formula" id="d-cvs-formula">CVₛ = σ / μ</div>
+                <div class="step-label">Measure how variable the job times are — if all jobs take the same time, service is consistent; if some take much longer, it is unpredictable</div>
+                <div class="step-working" id="d-cvs-working">variability score = spread of job times ÷ average job time</div>
               </div>
-              <div class="step-result pending" id="d-cvs">awaiting data</div>
+              <div class="step-result pending" id="d-cvs">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">4</div>
               <div class="step-body">
-                <div class="step-label">Average processing time μ(S) — used directly as T in VUT</div>
-                <div class="step-formula">T = μ(S)</div>
+                <div class="step-label">Calculate the average time a job takes to process — this is how long the supplier is tied up per order</div>
+                <div class="step-working" id="d-pt-working">average of all job processing times</div>
               </div>
-              <div class="step-result pending" id="d-pt">awaiting data</div>
+              <div class="step-result pending" id="d-pt">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">5</div>
               <div class="step-body">
-                <div class="step-label">Utilization u = arrival rate × avg service time = μ(S) / μ(IAT)</div>
-                <div class="step-formula" id="d-u-formula">u = T / μ(IAT)</div>
+                <div class="step-label">Estimate how busy the supplier is — average job time divided by average gap between arrivals tells us what fraction of the time the supplier is occupied</div>
+                <div class="step-working" id="d-u-working">busyness = average job time ÷ average gap between arrivals</div>
               </div>
-              <div class="step-result pending" id="d-u">awaiting data</div>
+              <div class="step-result pending" id="d-u">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">6</div>
               <div class="step-body">
-                <div class="step-label">The Company job mix — fraction of jobs labelled 1</div>
-                <div class="step-formula">mix = count(1s) / total jobs</div>
+                <div class="step-label">Count what share of jobs belong to The Company</div>
+                <div class="step-working" id="d-mix-working">The Company jobs ÷ total jobs</div>
               </div>
-              <div class="step-result pending" id="d-mix">awaiting data</div>
+              <div class="step-result pending" id="d-mix">enter data above</div>
             </div>
 
             <div class="deriv-step">
               <div class="step-num">7</div>
               <div class="step-body">
-                <div class="step-label">Plug into Kingman's formula to get predicted wait time</div>
-                <div class="step-formula" id="d-vut-formula">Wait = ((CVₐ²+CVₛ²)/2) × T × u/(1−u)</div>
+                <div class="step-label">Combine busyness, irregularity, and variability to estimate the average wait time before work even begins</div>
+                <div class="step-working" id="d-vut-working">predicted wait = (irregularity + variability) × average job time × busyness pressure</div>
               </div>
-              <div class="step-result pending" id="d-vut">awaiting data</div>
+              <div class="step-result pending" id="d-vut">enter data above</div>
             </div>
 
           </div>
           <button class="apply-btn" id="apply-btn" onclick="applyDerivedParams()" disabled>
-            Apply computed parameters to model →
+            Run the simulation with my data →
           </button>
         </div>
 
@@ -685,16 +701,20 @@
 </div>
 
 <script>
-/* ─────────────────────────────────────────────
-   State
-───────────────────────────────────────────── */
 let charts = {};
 let currentView = 'dashboard';
-let derivedParams = null;  // set by parseData()
+let derivedParams = null;
 
-/* ─────────────────────────────────────────────
-   View switching
-───────────────────────────────────────────── */
+/* ── Variability label ── */
+function varLabel(v) {
+  if (v < 0.4) return 'very regular';
+  if (v < 0.8) return 'mostly regular';
+  if (v < 1.2) return 'moderate';
+  if (v < 1.8) return 'fairly erratic';
+  return 'very erratic';
+}
+
+/* ── View switching ── */
 function setView(v, btn) {
   currentView = v;
   ['dashboard','sensitivity','histogram','datainput'].forEach(id => {
@@ -705,23 +725,18 @@ function setView(v, btn) {
   if (v !== 'datainput') update();
 }
 
-/* ─────────────────────────────────────────────
-   Statistics helpers
-───────────────────────────────────────────── */
+/* ── Statistics ── */
 function mean(arr)   { return arr.reduce((a, b) => a + b, 0) / arr.length; }
 function stddev(arr) {
   const m = mean(arr);
   return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length);
 }
-function cv(arr)     { const m = mean(arr); return m === 0 ? 0 : stddev(arr) / m; }
 
 function parseLines(text) {
   return text.trim().split(/\s+|\n|,/).map(s => parseFloat(s)).filter(n => !isNaN(n));
 }
 
-/* ─────────────────────────────────────────────
-   Data Input — parse & derive
-───────────────────────────────────────────── */
+/* ── Data Input ── */
 function parseData() {
   const errEl = document.getElementById('parse-error');
   errEl.style.display = 'none';
@@ -730,73 +745,73 @@ function parseData() {
   const svcTimes = parseLines(document.getElementById('svc-input').value);
   const labelRaw = document.getElementById('label-input').value.trim();
 
-  if (arrTimes.length < 2) { showErr('Need at least 2 arrival timestamps.'); return; }
-  if (svcTimes.length < 1) { showErr('Need at least 1 service time.'); return; }
+  if (arrTimes.length < 2) { showErr('Please enter at least 2 arrival times.'); return; }
+  if (svcTimes.length < 1) { showErr('Please enter at least 1 processing time.'); return; }
 
-  // Inter-arrival times
-  const iats = [];
+  const gaps = [];
   for (let i = 1; i < arrTimes.length; i++) {
     const d = arrTimes[i] - arrTimes[i - 1];
-    if (d < 0) { showErr('Arrival timestamps must be in ascending order.'); return; }
-    iats.push(d);
+    if (d < 0) { showErr('Arrival times must go from earliest to latest.'); return; }
+    gaps.push(d);
   }
 
-  const meanIAT = mean(iats);
-  const sdIAT   = stddev(iats);
-  const cva     = meanIAT === 0 ? 0 : sdIAT / meanIAT;
+  const avgGap    = mean(gaps);
+  const spreadGap = stddev(gaps);
+  const cva       = avgGap === 0 ? 0 : spreadGap / avgGap;
 
-  const meanSvc = mean(svcTimes);
-  const sdSvc   = stddev(svcTimes);
-  const cvs     = meanSvc === 0 ? 0 : sdSvc / meanSvc;
+  const avgJob    = mean(svcTimes);
+  const spreadJob = stddev(svcTimes);
+  const cvs       = avgJob === 0 ? 0 : spreadJob / avgJob;
 
-  const u   = Math.min(0.99, meanSvc / meanIAT);
-  const pt  = meanSvc;
+  const u  = Math.min(0.99, avgJob / avgGap);
+  const pt = avgJob;
 
-  // Job mix
   let companyPct;
   if (labelRaw === '') {
     companyPct = parseInt(document.getElementById('mix').value);
   } else {
     const labels = parseLines(labelRaw);
-    const ones   = labels.filter(l => l === 1).length;
-    companyPct   = Math.round((ones / labels.length) * 100);
+    companyPct   = Math.round((labels.filter(l => l === 1).length / labels.length) * 100);
   }
 
-  const vutWait = vutFn(cva, cvs, pt, u);
-
-  // Store for apply
+  const predictedWait = waitTimeFn(cva, cvs, pt, u);
   derivedParams = { cva, cvs, pt, u, companyPct };
 
-  // Update derivation display
-  const fmt = (n, d=3) => n.toFixed(d);
+  const fmt2 = n => n.toFixed(2);
+  const fmt1 = n => n.toFixed(1);
 
-  setResult('d-iat', `n = ${iats.length} intervals`);
-  document.getElementById('d-cva-formula').textContent =
-    `CVₐ = ${fmt(sdIAT)} / ${fmt(meanIAT)} = ${fmt(cva, 3)}`;
-  setResult('d-cva', `CVₐ = ${fmt(cva, 3)}`);
+  document.getElementById('d-iat-working').textContent =
+    `Found ${gaps.length} gaps. Average gap between arrivals: ${fmt2(avgGap)} hrs`;
+  setResult('d-iat', `avg gap: ${fmt2(avgGap)} hrs`);
 
-  document.getElementById('d-cvs-formula').textContent =
-    `CVₛ = ${fmt(sdSvc)} / ${fmt(meanSvc)} = ${fmt(cvs, 3)}`;
-  setResult('d-cvs', `CVₛ = ${fmt(cvs, 3)}`);
+  document.getElementById('d-cva-working').textContent =
+    `Spread (${fmt2(spreadGap)} hrs) ÷ average gap (${fmt2(avgGap)} hrs) = ${fmt2(cva)} → ${varLabel(cva)}`;
+  setResult('d-cva', `${varLabel(cva)} (${fmt2(cva)})`);
 
-  setResult('d-pt',  `T = ${fmt(meanSvc, 2)} hrs`);
+  document.getElementById('d-cvs-working').textContent =
+    `Spread (${fmt2(spreadJob)} hrs) ÷ average job time (${fmt2(avgJob)} hrs) = ${fmt2(cvs)} → ${varLabel(cvs)}`;
+  setResult('d-cvs', `${varLabel(cvs)} (${fmt2(cvs)})`);
 
-  document.getElementById('d-u-formula').textContent =
-    `u = ${fmt(meanSvc, 2)} / ${fmt(meanIAT, 2)} = ${fmt(u, 3)}`;
-  setResult('d-u',  `u = ${(u * 100).toFixed(1)}%`);
+  document.getElementById('d-pt-working').textContent =
+    `Average of ${svcTimes.length} job times`;
+  setResult('d-pt', `${fmt2(avgJob)} hrs per job`);
 
+  document.getElementById('d-u-working').textContent =
+    `${fmt2(avgJob)} hrs per job ÷ ${fmt2(avgGap)} hrs between arrivals = ${(u * 100).toFixed(1)}% occupied`;
+  setResult('d-u', `${(u * 100).toFixed(1)}% busy`);
+
+  document.getElementById('d-mix-working').textContent =
+    labelRaw === '' ? 'Using the share slider — no labels provided' :
+    `${parseLines(labelRaw).filter(l => l === 1).length} The Company jobs out of ${parseLines(labelRaw).length} total`;
   setResult('d-mix', `${companyPct}% The Company`);
 
-  document.getElementById('d-vut-formula').textContent =
-    `Wait = ((${fmt(cva,2)}²+${fmt(cvs,2)}²)/2) × ${fmt(pt,2)} × ${fmt(u,3)}/(1−${fmt(u,3)})`;
-  setResult('d-vut', `${fmt(vutWait, 2)} hrs`);
+  document.getElementById('d-vut-working').textContent =
+    `Busyness: ${(u*100).toFixed(0)}%  ·  Arrival irregularity: ${fmt2(cva)}  ·  Job variability: ${fmt2(cvs)}  ·  Avg job time: ${fmt2(pt)} hrs`;
+  setResult('d-vut', `${fmt2(predictedWait)} hrs predicted wait`);
 
   document.getElementById('apply-btn').disabled = false;
 
-  function showErr(msg) {
-    errEl.textContent = msg;
-    errEl.style.display = 'block';
-  }
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
 }
 
 function setResult(id, text) {
@@ -805,36 +820,27 @@ function setResult(id, text) {
   el.classList.remove('pending');
 }
 
-/* ─────────────────────────────────────────────
-   Apply derived params → sliders
-───────────────────────────────────────────── */
+/* ── Apply to sliders ── */
 function applyDerivedParams() {
   if (!derivedParams) return;
   const { cva, cvs, pt, u, companyPct } = derivedParams;
-
-  // Clamp to slider ranges
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-
   document.getElementById('cva').value  = clamp(cva,  0.1, 2.5).toFixed(1);
   document.getElementById('cvs').value  = clamp(cvs,  0.1, 2.5).toFixed(1);
   document.getElementById('pt').value   = clamp(pt,   1,   20).toFixed(1);
   document.getElementById('util').value = Math.round(clamp(u * 100, 5, 99));
   document.getElementById('mix').value  = Math.round(clamp(companyPct, 5, 95) / 5) * 5;
-
-  // Switch to dashboard and run
   setView('dashboard', document.querySelectorAll('.tab')[0]);
 }
 
-/* ─────────────────────────────────────────────
-   VUT formula
-───────────────────────────────────────────── */
-function vutFn(cva, cvs, pt, u) {
-  return ((cva * cva + cvs * cvs) / 2) * pt * (u / (1 - u));
+/* ── Wait time formula (wait time formula) ── */
+function waitTimeFn(arrIrregularity, jobVariability, avgJobTime, busyness) {
+  return ((arrIrregularity * arrIrregularity + jobVariability * jobVariability) / 2)
+    * avgJobTime
+    * (busyness / (1 - busyness));
 }
 
-/* ─────────────────────────────────────────────
-   Simulation
-───────────────────────────────────────────── */
+/* ── Simulation ── */
 function exponential(m) { return -m * Math.log(Math.random() || 1e-10); }
 
 function erlang(k, m) {
@@ -843,34 +849,34 @@ function erlang(k, m) {
   return s;
 }
 
-function sampleCV(m, cv) {
-  if (cv <= 0.01) return m;
-  if (cv <= 0.5) return erlang(Math.max(1, Math.round(1 / (cv * cv))), m);
+function sampleSpread(m, spread) {
+  if (spread <= 0.01) return m;
+  if (spread <= 0.5)  return erlang(Math.max(1, Math.round(1 / (spread * spread))), m);
   return exponential(m);
 }
 
-function simulate(cva, cvs, pt, u, companyPct, nJobs) {
-  const meanIAT = pt / u;
+function simulate(arrIrregularity, jobVariability, avgJobTime, busyness, companyPct, nJobs) {
+  const avgGap = avgJobTime / busyness;
   let arrivals = [], t = 0;
   for (let i = 0; i < nJobs; i++) {
-    t += sampleCV(meanIAT, cva);
+    t += sampleSpread(avgGap, arrIrregularity);
     arrivals.push({ arrTime: t, isCompany: Math.random() < companyPct / 100 });
   }
-  let serverFree = 0, waitTimes = [], companyWaits = [], queueOverTime = [];
+  let workerFreeAt = 0, waitTimes = [], companyWaits = [], queueOverTime = [];
   for (let i = 0; i < arrivals.length; i++) {
-    const j = arrivals[i];
-    const start = Math.max(j.arrTime, serverFree);
-    const svcTime = sampleCV(pt, cvs);
-    const wait = start - j.arrTime;
-    serverFree = start + svcTime;
+    const j     = arrivals[i];
+    const start = Math.max(j.arrTime, workerFreeAt);
+    const jobTime = sampleSpread(avgJobTime, jobVariability);
+    const wait  = start - j.arrTime;
+    workerFreeAt = start + jobTime;
     waitTimes.push(wait);
     if (j.isCompany) companyWaits.push(wait);
     if (i % Math.max(1, Math.floor(nJobs / 50)) === 0) {
-      const rem = arrivals.slice(i).filter(x => x.arrTime < serverFree).length;
+      const backlog = arrivals.slice(i).filter(x => x.arrTime < workerFreeAt).length;
       queueOverTime.push({
         t: j.arrTime,
-        q: rem,
-        cq: arrivals.slice(i).filter(x => x.arrTime < serverFree && x.isCompany).length
+        q: backlog,
+        cq: arrivals.slice(i).filter(x => x.arrTime < workerFreeAt && x.isCompany).length
       });
     }
   }
@@ -878,9 +884,7 @@ function simulate(cva, cvs, pt, u, companyPct, nJobs) {
   return { avgWait: avg(waitTimes), companyAvgWait: avg(companyWaits), waitTimes, companyWaits, queueOverTime };
 }
 
-/* ─────────────────────────────────────────────
-   Chart helpers
-───────────────────────────────────────────── */
+/* ── Charts ── */
 function makeOrUpdate(id, config) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
@@ -890,12 +894,12 @@ function makeOrUpdate(id, config) {
 
 const gridColor = 'rgba(128,128,128,0.10)';
 const axisColor = '#9e9d97';
-const tickFont  = { size: 11, family: 'Courier New, monospace' };
+const tickFont  = { size: 11, family: 'Georgia, serif' };
 const baseOpts  = {
   responsive: true, maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Courier New, monospace', size: 12 } }
+    tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Georgia, serif', size: 12 } }
   },
   scales: {
     x: { grid: { color: gridColor }, ticks: { color: axisColor, font: tickFont } },
@@ -903,98 +907,102 @@ const baseOpts  = {
   }
 };
 
-/* ─────────────────────────────────────────────
-   Main update
-───────────────────────────────────────────── */
+/* ── Main update ── */
 function update() {
-  const cva = parseFloat(document.getElementById('cva').value);
-  const cvs = parseFloat(document.getElementById('cvs').value);
-  const pt  = parseFloat(document.getElementById('pt').value);
-  const u   = parseFloat(document.getElementById('util').value) / 100;
-  const mix = parseInt(document.getElementById('mix').value);
+  const arrIrr  = parseFloat(document.getElementById('cva').value);
+  const jobVar  = parseFloat(document.getElementById('cvs').value);
+  const avgJob  = parseFloat(document.getElementById('pt').value);
+  const busy    = parseFloat(document.getElementById('util').value) / 100;
+  const mix     = parseInt(document.getElementById('mix').value);
 
-  document.getElementById('cva-out').textContent     = cva.toFixed(1);
-  document.getElementById('cvs-out').textContent     = cvs.toFixed(1);
-  document.getElementById('pt-out').textContent      = pt.toFixed(1);
-  document.getElementById('u-out').textContent       = Math.round(u * 100) + '%';
+  document.getElementById('cva-out').textContent     = varLabel(arrIrr);
+  document.getElementById('cvs-out').textContent     = varLabel(jobVar);
+  document.getElementById('pt-out').textContent      = avgJob.toFixed(1) + ' hrs';
+  document.getElementById('u-out').textContent       = Math.round(busy * 100) + '%';
   document.getElementById('mix-out').textContent     = mix + '%';
   document.getElementById('company-lbl').textContent = mix + '% The Company';
   document.getElementById('other-lbl').textContent   = (100 - mix) + '% other';
 
-  const vutWait = vutFn(cva, cvs, pt, u);
-  const sim     = simulate(cva, cvs, pt, u, mix, 800);
+  const formulaWait = waitTimeFn(arrIrr, jobVar, avgJob, busy);
+  const sim         = simulate(arrIrr, jobVar, avgJob, busy, mix, 800);
 
   document.getElementById('metrics-row').innerHTML = `
     <div class="metric">
-      <div class="metric-label">VUT wait</div>
-      <div class="metric-val">${vutWait.toFixed(1)}h</div>
-      <div class="metric-sub">Kingman formula</div>
+      <div class="metric-label">Formula estimate</div>
+      <div class="metric-val">${formulaWait.toFixed(1)}h</div>
+      <div class="metric-sub">predicted wait time</div>
     </div>
     <div class="metric">
       <div class="metric-label">Simulated wait</div>
       <div class="metric-val">${sim.avgWait.toFixed(1)}h</div>
-      <div class="metric-sub">All job types</div>
+      <div class="metric-sub">all job types</div>
     </div>
     <div class="metric">
       <div class="metric-label">The Company wait</div>
       <div class="metric-val">${sim.companyAvgWait.toFixed(1)}h</div>
-      <div class="metric-sub">${mix}% of arrivals</div>
+      <div class="metric-sub">${mix}% of all arrivals</div>
     </div>
   `;
 
-  const pctErr = vutWait > 0 ? Math.abs(vutWait - sim.avgWait) / vutWait * 100 : 0;
-  const uMsg   = u >= 0.9
-    ? 'Critical: utilization ≥90% causes exponential wait times — system approaching breakdown.'
-    : u >= 0.75
-    ? 'Caution: past 75% utilization waits grow rapidly. Small increases have outsized impact.'
-    : 'System has capacity headroom. Variability is the dominant driver of delays at this utilization.';
+  const pctErr = formulaWait > 0 ? Math.abs(formulaWait - sim.avgWait) / formulaWait * 100 : 0;
+  const busyMsg = busy >= 0.9
+    ? 'Warning: this supplier is critically overloaded. Even a small increase in orders will cause wait times to spiral.'
+    : busy >= 0.75
+    ? 'Caution: above 75% busy, wait times grow rapidly. A modest reduction in workload would have a large impact.'
+    : 'This supplier has breathing room. Unpredictability is the bigger driver of delays at this workload level.';
   document.getElementById('insight-box').textContent =
-    `${uMsg} VUT vs. simulation error: ${pctErr.toFixed(0)}%. The Company waits ` +
-    `${sim.companyAvgWait > sim.avgWait ? 'above' : 'below'} average (shared FCFS queue — no priority).`;
+    `${busyMsg} The formula estimate is ${pctErr.toFixed(0)}% away from the simulated result. ` +
+    `The Company waits ${sim.companyAvgWait > sim.avgWait ? 'slightly longer than' : 'about the same as'} other jobs — no priority given in a shared queue.`;
 
   if (currentView === 'dashboard') {
-    const uLabels  = [10,20,30,40,50,60,70,80,85,90,92,95,97,99];
-    const vutCurve = uLabels.map(ul => +vutFn(cva, cvs, pt, ul/100).toFixed(2));
-    const simCurve = uLabels.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
+    const busyLevels = [10,20,30,40,50,60,70,80,85,90,92,95,97,99];
+    const fCurve = busyLevels.map(b => +waitTimeFn(arrIrr, jobVar, avgJob, b/100).toFixed(2));
+    const sCurve = busyLevels.map(b => +simulate(arrIrr, jobVar, avgJob, b/100, mix, 400).avgWait.toFixed(2));
 
     makeOrUpdate('c-util', {
       type: 'line',
       data: {
-        labels: uLabels.map(l => l + '%'),
+        labels: busyLevels.map(l => l + '%'),
         datasets: [
-          { label: 'VUT',       data: vutCurve, borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
-          { label: 'Simulated', data: simCurve, borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
+          { label: 'Formula estimate', data: fCurve, borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Simulated result', data: sCurve, borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
         ]
       },
       options: { ...baseOpts }
     });
 
-    const cvRange = [0.1,0.3,0.5,0.7,1.0,1.2,1.5,1.8,2.0,2.5];
+    const irrRange = [0.1,0.3,0.5,0.7,1.0,1.2,1.5,1.8,2.0,2.5];
     makeOrUpdate('c-var', {
       type: 'line',
       data: {
-        labels: cvRange,
+        labels: irrRange.map(v => varLabel(v)),
         datasets: [
-          { label: 'CVₐ sweep', data: cvRange.map(c => +vutFn(c, cvs, pt, u).toFixed(2)), borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
-          { label: 'CVₛ sweep', data: cvRange.map(c => +vutFn(cva, c, pt, u).toFixed(2)), borderColor: '#993c1d', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
+          { label: 'Arrival irregularity', data: irrRange.map(v => +waitTimeFn(v, jobVar, avgJob, busy).toFixed(2)), borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Job time variability', data: irrRange.map(v => +waitTimeFn(arrIrr, v, avgJob, busy).toFixed(2)), borderColor: '#993c1d', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] }
         ]
       },
-      options: { ...baseOpts }
+      options: {
+        ...baseOpts,
+        scales: {
+          x: { ...baseOpts.scales.x, ticks: { ...baseOpts.scales.x.ticks, maxRotation: 30 } },
+          y: baseOpts.scales.y
+        }
+      }
     });
 
-    const uComp      = [40,50,60,70,75,80,85,90,95];
-    const vutComp    = uComp.map(ul => +vutFn(cva, cvs, pt, ul/100).toFixed(2));
-    const simComp    = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).avgWait.toFixed(2));
-    const compComp   = uComp.map(ul => +simulate(cva, cvs, pt, ul/100, mix, 400).companyAvgWait.toFixed(2));
+    const compBusy   = [40,50,60,70,75,80,85,90,95];
+    const fComp      = compBusy.map(b => +waitTimeFn(arrIrr, jobVar, avgJob, b/100).toFixed(2));
+    const sComp      = compBusy.map(b => +simulate(arrIrr, jobVar, avgJob, b/100, mix, 400).avgWait.toFixed(2));
+    const coComp     = compBusy.map(b => +simulate(arrIrr, jobVar, avgJob, b/100, mix, 400).companyAvgWait.toFixed(2));
 
     makeOrUpdate('c-comp', {
       type: 'line',
       data: {
-        labels: uComp.map(l => l + '%'),
+        labels: compBusy.map(l => l + '%'),
         datasets: [
-          { label: 'VUT',         data: vutComp,  borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
-          { label: 'Simulation',  data: simComp,  borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] },
-          { label: 'The Company', data: compComp, borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [2,2] }
+          { label: 'Formula estimate', data: fComp,  borderColor: '#185fa5', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2 },
+          { label: 'Simulation',       data: sComp,  borderColor: '#0f6e56', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [5,3] },
+          { label: 'The Company',      data: coComp, borderColor: '#ba7517', backgroundColor: 'transparent', pointRadius: 2, tension: 0.35, borderWidth: 2, borderDash: [2,2] }
         ]
       },
       options: { ...baseOpts }
@@ -1014,17 +1022,17 @@ function update() {
     });
 
   } else if (currentView === 'sensitivity') {
-    const uRange   = [10,20,30,40,50,60,70,75,80,85,90,92,95];
-    const cvLevels = [0.5, 1.0, 1.5, 2.0, 2.5];
-    const colors   = ['#b5d4f4','#378add','#185fa5','#d85a30','#993c1d'];
+    const busyLevels = [10,20,30,40,50,60,70,75,80,85,90,92,95];
+    const irrLevels  = [0.5, 1.0, 1.5, 2.0, 2.5];
+    const irrColors  = ['#b5d4f4','#378add','#185fa5','#d85a30','#993c1d'];
     makeOrUpdate('c-sens', {
       type: 'line',
       data: {
-        labels: uRange.map(l => l + '%'),
-        datasets: cvLevels.map((c, i) => ({
-          label: 'CVₐ = ' + c,
-          data: uRange.map(ul => +vutFn(c, cvs, pt, ul/100).toFixed(2)),
-          borderColor: colors[i], backgroundColor: 'transparent',
+        labels: busyLevels.map(l => l + '%'),
+        datasets: irrLevels.map((v, i) => ({
+          label: varLabel(v),
+          data: busyLevels.map(b => +waitTimeFn(v, jobVar, avgJob, b/100).toFixed(2)),
+          borderColor: irrColors[i], backgroundColor: 'transparent',
           pointRadius: 2, tension: 0.35, borderWidth: 2
         }))
       },
@@ -1058,8 +1066,8 @@ function update() {
       options: {
         ...baseOpts,
         scales: {
-          x: { ...baseOpts.scales.x, title: { display: true, text: 'Wait time (hrs)', color: axisColor, font: tickFont } },
-          y: { ...baseOpts.scales.y, title: { display: true, text: 'Job count',       color: axisColor, font: tickFont } }
+          x: { ...baseOpts.scales.x, title: { display: true, text: 'Hours waiting before work begins', color: axisColor, font: tickFont } },
+          y: { ...baseOpts.scales.y, title: { display: true, text: 'Number of jobs',                   color: axisColor, font: tickFont } }
         }
       }
     });
