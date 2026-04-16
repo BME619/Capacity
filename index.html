@@ -518,7 +518,7 @@
         How unpredictable are arrivals?
         <span class="ctrl-val" id="cva-out">moderate</span>
       </div>
-      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cva" oninput="update()">
+      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cva" oninput="update(true)">
       <div class="ctrl-hint">Low = orders arrive on a regular schedule. High = orders arrive in unpredictable bursts.</div>
     </div>
 
@@ -527,7 +527,7 @@
         How variable are job times?
         <span class="ctrl-val" id="cvs-out">moderate</span>
       </div>
-      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cvs" oninput="update()">
+      <input type="range" min="0.1" max="2.5" step="0.1" value="1.0" id="cvs" oninput="update(true)">
       <div class="ctrl-hint">Low = jobs take roughly the same time. High = some jobs take much longer than others.</div>
     </div>
 
@@ -536,7 +536,7 @@
         Average time to process a job
         <span class="ctrl-val" id="pt-out">4.0 hrs</span>
       </div>
-      <input type="range" min="1" max="20" step="0.5" value="4" id="pt" oninput="update()">
+      <input type="range" min="1" max="20" step="0.5" value="4" id="pt" oninput="update(true)">
       <div class="ctrl-hint">How long the supplier spends actively working on each order.</div>
     </div>
 
@@ -545,7 +545,7 @@
         How busy is the supplier?
         <span class="ctrl-val" id="u-out">75%</span>
       </div>
-      <input type="range" min="5" max="99" step="1" value="75" id="util" oninput="update()">
+      <input type="range" min="5" max="99" step="1" value="75" id="util" oninput="update(true)">
       <div class="ctrl-hint">The percentage of time the supplier is actively working. Above 85% is a danger zone.</div>
     </div>
 
@@ -554,7 +554,7 @@
         Share of The Company jobs
         <span class="ctrl-val" id="mix-out">50%</span>
       </div>
-      <input type="range" min="5" max="95" step="5" value="50" id="mix" oninput="update()">
+      <input type="range" min="5" max="95" step="5" value="50" id="mix" oninput="update(true)">
       <div class="mix-pills">
         <span class="pill pill-company" id="company-lbl">50% The Company</span>
         <span class="pill pill-other"   id="other-lbl">50% other</span>
@@ -798,6 +798,8 @@
 let charts = {};
 let currentView = 'dashboard';
 let derivedParams = null;
+let cachedSim = null;      // holds simulation result when running from real data
+let usingRealData = false; // true when user has applied uploaded data
 
 /* ── Variability label ── */
 function varLabel(v) {
@@ -878,7 +880,15 @@ function parseData() {
   }
 
   const predictedWait = waitTimeFn(cva, cvs, pt, u);
-  derivedParams = { cva, cvs, pt, u, companyPct };
+
+  // Parse job labels for use in the real-data simulation
+  let jobLabels = [];
+  if (labelRaw !== '') {
+    jobLabels = parseLines(labelRaw).map(l => l === 1);
+  }
+
+  // Store real arrival times, service times, labels, and derived params
+  derivedParams = { cva, cvs, pt, u, companyPct, realArrTimes: arrTimes, realSvcTimes: cleanSvcTimes, jobLabels };
 
   const fmt2 = n => n.toFixed(2);
   const fmt1 = n => n.toFixed(1);
@@ -926,14 +936,56 @@ function setResult(id, text) {
 /* ── Apply to sliders ── */
 function applyDerivedParams() {
   if (!derivedParams) return;
-  const { cva, cvs, pt, u, companyPct } = derivedParams;
+  const { cva, cvs, pt, u, companyPct, realArrTimes, realSvcTimes, jobLabels } = derivedParams;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   document.getElementById('cva').value  = clamp(cva,  0.1, 2.5).toFixed(1);
   document.getElementById('cvs').value  = clamp(cvs,  0.1, 2.5).toFixed(1);
   document.getElementById('pt').value   = clamp(pt,   1,   20).toFixed(1);
   document.getElementById('util').value = Math.round(clamp(u * 100, 5, 99));
   document.getElementById('mix').value  = Math.round(clamp(companyPct, 5, 95) / 5) * 5;
+
+  // Run the simulation once on real data and cache it — don't re-randomise on tab switch
+  cachedSim = simulateFromRealData(realArrTimes, realSvcTimes, jobLabels, companyPct);
+  usingRealData = true;
+
   setView('dashboard', document.querySelectorAll('.tab')[0]);
+}
+
+/* ── Simulate directly from real uploaded records ── */
+function simulateFromRealData(arrTimes, svcTimes, jobLabels, companyPct) {
+  // Pair each arrival with a service time (cycle through svc times if fewer than arrivals)
+  let workerFreeAt = 0, waitTimes = [], companyWaits = [], queueOverTime = [];
+  const n = arrTimes.length;
+
+  for (let i = 0; i < n; i++) {
+    const arrTime = arrTimes[i];
+    const svcTime = svcTimes[i % svcTimes.length];
+    const isCompany = jobLabels.length > 0
+      ? (jobLabels[i] === true || jobLabels[i] === 1)
+      : Math.random() < companyPct / 100;
+
+    const start = Math.max(arrTime, workerFreeAt);
+    const wait  = start - arrTime;
+    workerFreeAt = start + svcTime;
+
+    waitTimes.push(wait);
+    if (isCompany) companyWaits.push(wait);
+
+    if (i % Math.max(1, Math.floor(n / 50)) === 0) {
+      const backlog = arrTimes.slice(i).filter(t => t < workerFreeAt).length;
+      queueOverTime.push({
+        t: arrTime,
+        q: backlog,
+        cq: arrTimes.slice(i).filter((t, j) => {
+          const lbl = jobLabels.length > 0 ? jobLabels[i + j] : Math.random() < companyPct / 100;
+          return t < workerFreeAt && lbl;
+        }).length
+      });
+    }
+  }
+
+  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  return { avgWait: avg(waitTimes), companyAvgWait: avg(companyWaits), waitTimes, companyWaits, queueOverTime };
 }
 
 /* ── Wait time formula (wait time formula) ── */
@@ -1011,7 +1063,13 @@ const baseOpts  = {
 };
 
 /* ── Main update ── */
-function update() {
+function update(manualSliderChange) {
+  // If the user moves a slider manually, drop back to random simulation mode
+  if (manualSliderChange) {
+    usingRealData = false;
+    cachedSim = null;
+  }
+
   const arrIrr  = parseFloat(document.getElementById('cva').value);
   const jobVar  = parseFloat(document.getElementById('cvs').value);
   const avgJob  = parseFloat(document.getElementById('pt').value);
@@ -1027,7 +1085,15 @@ function update() {
   document.getElementById('other-lbl').textContent   = (100 - mix) + '% other';
 
   const formulaWait = waitTimeFn(arrIrr, jobVar, avgJob, busy);
-  const sim         = simulate(arrIrr, jobVar, avgJob, busy, mix, 800);
+
+  // Use cached real-data simulation if available, otherwise generate random jobs
+  const sim = (usingRealData && cachedSim) ? cachedSim : simulate(arrIrr, jobVar, avgJob, busy, mix, 800);
+
+  // Cache the random sim result too so tab switching doesn't re-randomise
+  if (!usingRealData) cachedSim = sim;
+
+  const dataSource = (usingRealData && cachedSim) ? 'from your data' : 'all job types';
+  const companySource = (usingRealData && cachedSim) ? 'from your data' : mix + '% of all arrivals';
 
   document.getElementById('metrics-row').innerHTML = `
     <div class="metric">
@@ -1038,12 +1104,12 @@ function update() {
     <div class="metric">
       <div class="metric-label">Simulated wait</div>
       <div class="metric-val">${sim.avgWait.toFixed(1)}h</div>
-      <div class="metric-sub">all job types</div>
+      <div class="metric-sub">${dataSource}</div>
     </div>
     <div class="metric">
       <div class="metric-label">The Company wait</div>
       <div class="metric-val">${sim.companyAvgWait.toFixed(1)}h</div>
-      <div class="metric-sub">${mix}% of all arrivals</div>
+      <div class="metric-sub">${companySource}</div>
     </div>
   `;
 
